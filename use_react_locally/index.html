@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app-one"></div>
+    <div id="app-two"></div>
+
+    <!-- There is no need to use crossorigin attribute because these files are
+      not crossorigin. -->
+    <script src="react@18/react.development.js"></script>
+    <script src="react-dom@18/react-dom.development.js"></script>
+
+    <script>
+      // Uses class to avoid referencing global react components from within
+      // the render function.
+
+      // Wrap in IIFE to avoid global name clashes.
+      (() => {
+        class ReactApp {
+          constructor() {
+            const id = 'app-one';
+            const domRoot = document.getElementById(id);
+
+            function establishClassInvariant() {
+              if (domRoot) {
+                this.__reactRoot = ReactDOM.createRoot(domRoot);
+              } else {
+                throw new Error(
+                  'domRoot not found, received ' + typeof domRoot
+                );
+              }
+            }
+
+            // Should be able to access `this` of the class.
+            establishClassInvariant.call(this);
+          }
+
+          render(App) {
+            this.__reactRoot.render(App);
+          }
+        }
+
+        function App() {
+          return React.createElement('h1', null, 'App One');
+        }
+
+        const reactApp = new ReactApp();
+        reactApp.render(React.createElement(App));
+      })();
+    </script>
+
+    <script>
+      // Wrap in IIFE to avoid global name clashes.
+      (() => {
+        function App() {
+          return React.createElement('h1', null, 'App Two');
+        }
+
+        function renderApp() {
+          const id = 'app-two';
+          const domRoot = document.getElementById(id);
+          const reactRoot = ReactDOM.createRoot(domRoot);
+          // References global component App which tightly couples this
+          // function to a global react component App.
+          reactRoot.render(React.createElement(App));
+        }
+
+        renderApp();
+      })();
+    </script>
+  </body>
+</html>
