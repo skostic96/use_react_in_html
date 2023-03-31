@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div id="app"></div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/react@18/umd/react.development.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.development.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      // More convenient to use `e('h1')` than `React.createElement('h1')`
+      const e = React.createElement;
+
+      // We can retrieve and manipulate DOM elements directly from ReactJS
+      // because we ARE in the context of javascript.
+      function HandleExistingDOMElement() {
+        const [domElement, setDomElement] = React.useState(null);
+
+        // Once the component is mounted we can take the dom element and store
+        // it in the state.
+        React.useEffect(() => {
+          const headElements = document.getElementsByTagName('head');
+          const head = headElements[0];
+
+          setDomElement(head);
+        }, [setDomElement]);
+
+        function render() {
+          if (domElement) {
+            const content = e('p', null, domElement.innerHTML);
+            return content;
+          } else {
+            const fallback = e('p', null, 'DOM element not saved...');
+            return fallback;
+          }
+        }
+
+        // This is an alternative to <Fragment></Fragment>
+        return e(React.Fragment, null, render());
+      }
+
+      function PassingProps(props) {
+        function renderUser() {
+          return e(
+            'div',
+            null,
+            e('p', null, props.user.name),
+            e('p', null, props.user.lastName),
+            e('p', null, props.user.email)
+          );
+        }
+
+        function renderGroceries() {
+          return e(
+            'ul',
+            null,
+            props.groceries.map((grocery) => {
+              return e(
+                'li',
+                { key: grocery.id },
+                e(
+                  'div',
+                  null,
+                  e('p', null, `Name: ${grocery.name}`),
+                  e('p', null, `Type: ${grocery.type}`)
+                )
+              );
+            })
+          );
+        }
+
+        return e('div', null, renderUser(), renderGroceries());
+      }
+
+      // Since we are able to work with anything JavaScript provides we are
+      // able to add/remove/modify styles or contents of any document element.
+      function InjectStyle() {
+        // Save the content of user style input and use it in the inserted
+        // style element to alter the styling of elements.
+        const initialContent = '';
+        const [content, setContent] = React.useState(initialContent);
+        function saveContent(event) {
+          setContent(event.target.value);
+        }
+
+        // Insert and keep the style element updated whenever state updates.
+        React.useEffect(() => {
+          const styleElement = document.createElement('style');
+          styleElement.innerHTML = content;
+
+          document.head.appendChild(styleElement);
+
+          // Make sure to remove it!
+          return () => {
+            document.head.removeChild(styleElement);
+          };
+        }, [content, setContent]);
+
+        return e('textarea', { onChange: saveContent, value: content });
+      }
+
+      function App() {
+        function createMockGroceryList() {
+          const carrot = { id: 1, name: 'carrot', type: 'vegetable' };
+          const potato = { id: 2, name: 'potato', type: 'vegetable' };
+          const apple = { id: 3, name: 'apple', type: 'fruit' };
+          const tomato = { id: 4, name: 'tomato', type: 'vegetable' };
+
+          const groceries = [carrot, potato, apple, tomato];
+
+          return groceries;
+        }
+
+        function createMockUser() {
+          const user = {
+            name: 'John',
+            lastName: 'Doe',
+            email: 'john.doe@whatever.hello',
+          };
+
+          return user;
+        }
+
+        return e(
+          React.Fragment,
+          null,
+          e(HandleExistingDOMElement),
+          e(
+            PassingProps,
+            // Props object is the second parameter.
+            { groceries: createMockGroceryList(), user: createMockUser() }
+          ),
+          e(InjectStyle)
+        );
+      }
+
+      const domRoot = document.getElementById('app');
+      ReactDOM.createRoot(domRoot).render(e(App));
+    </script>
+  </body>
+</html>
