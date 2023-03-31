@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      const { createElement: e } = React;
+
+      function AddStyle() {
+        React.useEffect(() => {
+          const styleElement = document.createElement('style');
+          styleElement.innerHTML = `* { color: red; }`;
+
+          document.head.appendChild(styleElement);
+
+          return () => {
+            document.head.remove(styleElement);
+          };
+        });
+
+        return e('textarea');
+      }
+
+      function Button() {
+        const [value, setValue] = React.useState(0);
+        function increase() {
+          setValue((previousValue) => previousValue + 1);
+        }
+
+        return e('button', { onClick: increase }, value);
+      }
+
+      function Wrapper(props) {
+        return e('div', null, props.children);
+      }
+
+      function Person(props) {
+        return e(
+          'div',
+          null,
+          e('p', null, props.name),
+          e('p', null, props.lastName),
+          e('p', null, props.email)
+        );
+      }
+
+      function App() {
+        React.useEffect(() => {
+          console.log('effect...');
+        }, []);
+
+        return e(
+          'main',
+          null,
+
+          e('h1', { id: 'my-id', className: 'my-class' }, 'Hello world'),
+          e(Person, {
+            name: 'John',
+            lastName: 'Doe',
+            email: 'john.doe@gmail.com',
+          }),
+          e(
+            Wrapper,
+            null,
+            e('p', null, 'paragraph'),
+            e('p', null, 'paragraph'),
+            e('p', null, 'paragraph')
+          ),
+          e(Button),
+          e(AddStyle)
+        );
+      }
+
+      const id = 'app';
+      const domRoot = document.getElementById(id);
+      const reactRoot = ReactDOM.createRoot(domRoot);
+      reactRoot.render(e(App));
+    </script>
+  </body>
+</html>
